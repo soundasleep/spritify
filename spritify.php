@@ -13,6 +13,8 @@
  * - Does not support unicode rules (this is a PCRE limitation)
  * - Will fail for things like 'content: ';';'
  * - Only supports spriting of PNG images, does not support GIF.
+ * - The output CSS file needs to be in the same directory as the input CSS file.
+ * - All images need to be relative and accessible to the CSS file (no Apache Aliases, etc).
  * - Assumes background images are of one of the following formats:
  *   - background: #123 url('foo'); (colours are added as another property 'background-color')
  *   - background: url('foo');
@@ -21,16 +23,26 @@
  *   - background: url('foo') top 10px;
  * - The following are not supported:
  *   - background: #123 url('foo') bottom right; (all other words are assumed to be 'top left')
+ *   - background: #123 url('foo') center center; (something aligned 'center center' is ignored)
  *   - background: url('foo') 0% 0%;
  *   - background: url('foo') 50% 100%;
  */
 
-$input = "../site/default.css";
-$output_sprites = "default-sprites.png";	// relative to $relative
+if ($argc < 2) {
+	fprintf(STDERR, "Spritify: A tool to process CSS stylesheets, optimise them and generate spritesheets.\n");
+	fprintf(STDERR, "  Usage: php -f spritify.php [input_css] [output_png] ([max_width=32] [max_height=32] [padding=200])");
+	fprintf(STDERR, "  Output: Compressed CSS stylesheet");
+	return 1;
+}
 
-$max_sprite_width = 32;
-$max_sprite_height = 32;
-$sprite_padding = 200;	// amount of space to place between sprites; this can be a big number, doesn't seem to impact PNG filesize
+$input = $argv[1];
+$output_sprites = $argv[2]; // relative to $relative
+
+$max_sprite_width = isset($argv[3]) ? isset($argv[3]) : 32;
+$max_sprite_height = isset($argv[4]) ? isset($argv[4]) : 32;
+
+// amount of space to place between sprites; this can be a big number, doesn't seem to impact PNG filesize
+$sprite_padding = isset($argv[5]) ? isset($argv[5]) : 200;
 
 class SpritifyException extends Exception { }
 
@@ -41,6 +53,9 @@ if (strpos($input, "/") !== false) {
 }
 
 // first, read the stylesheet, generating rules
+if (!file_exists($input)) {
+	throw new SpritifyException("Input CSS file '$input' does not exist");
+}
 $input_file = file_get_contents($input);
 
 // drop all comments
@@ -109,6 +124,11 @@ foreach ($css as $rule_index => $rule) {
 					}
 					$sizes = getimagesize($relative . $image_url);
 					if ($sizes[0] <= $max_sprite_width && $sizes[1] <= $max_sprite_height) {
+						// unless this is a 'center center' image
+						if (preg_match("#\\)\\s*center\\s*center#im", strtolower($property['value']), $match)) {
+							continue;
+						}
+
 						if (array_search($image_url, $sprites, TRUE) === false) {
 							$sprites[] = $image_url;
 						}
@@ -124,7 +144,7 @@ foreach ($css as $rule_index => $rule) {
 						$sprite_left = 0;
 
 						// now work out what this 'background' property will be replaced with
-						if (preg_match("#\\)\s*([0-9]+|top|bottom|center|left|right)(|px)\s*([0-9]+|top|bottom|left|right|center)(|px)#im", strtolower($property['value']), $match)) {
+						if (preg_match("#\\)\\s*([0-9]+|top|bottom|center|left|right)(|px)\\s*([0-9]+|top|bottom|left|right|center)(|px)#im", strtolower($property['value']), $match)) {
 							if (in_array($match[1], array('bottom', 'center', 'right'))) {
 								fwrite(STDERR, "Warning: Rule '$head' used unsupported background position constant '" . $match[1] . "': assuming 'top'.\n");
 							}
