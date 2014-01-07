@@ -14,13 +14,14 @@
  * LIMITATIONS
  * - The input CSS needs to be valid
  * - Does not support unicode rules (this is a PCRE limitation)
- * - Will fail for things like 'content: ';';'
+ * - Uses very basic regular expressions, so will fail with strings that contain ;s
  * - Only supports spriting of PNG images, does not support GIF.
  * - The output CSS file needs to be in the same directory as the input CSS file.
- * - All images need to be relative and accessible to the CSS file (no Apache Aliases, etc).
+ * - All images need to be relative and accessible relative to the CSS file (no Apache Aliases, etc).
  * - Assumes background images are of one of the following formats:
  *   - background: #123 url('foo'); (colours are added as another property 'background-color')
  *   - background: url('foo');
+ *   - background-image: url('foo');
  *   - background: url('foo') 0 0;
  *   - background: url('foo') 10px 20px;
  *   - background: url('foo') top 10px;
