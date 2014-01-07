@@ -8,6 +8,9 @@
  * As part of this process, the stylesheet is also partially optimised - removing comments, some unneccessary
  * whitespace etc.
  *
+ * REQUIREMENTS
+ *   sudo apt-get install php5-gd
+ *
  * LIMITATIONS
  * - The input CSS needs to be valid
  * - Does not support unicode rules (this is a PCRE limitation)
