@@ -39,6 +39,9 @@ if ($argc < 2) {
 	return 1;
 }
 
+// generate a random parameter to add to the output_png to ensure that the browser requests the most recent version
+$rand_param = "?" . sprintf("%04x", rand(0,0xffff));
+
 $input = $argv[1];
 $output_sprites = $argv[2]; // relative to $relative
 
@@ -190,7 +193,7 @@ if ($sprited_elements) {
 		'properties' => array(
 			array(
 				'key' => 'background',
-				'value' => "url('" . $output_sprites . "') top left no-repeat",
+				'value' => "url('" . $output_sprites . $rand_param . "') top left no-repeat",
 			),
 		),
 	));
