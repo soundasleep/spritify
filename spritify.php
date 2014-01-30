@@ -136,6 +136,17 @@ foreach ($css as $rule_index => $rule) {
 							continue;
 						}
 
+						// or the property 'x-background-sprite' is set and false
+						$disable_sprite = false;
+						foreach ($rule['properties'] as $property2) {
+							if ($property2['key'] == 'x-background-sprite' && $property2['value'] == 'false') {
+								$disable_sprite = true;
+							}
+						}
+						if ($disable_sprite) {
+							continue;
+						}
+
 						if (array_search($image_url, $sprites, TRUE) === false) {
 							$sprites[] = $image_url;
 						}
@@ -231,6 +242,11 @@ if ($sprited_elements) {
 foreach ($css as $rule) {
 	echo $rule['head'] . "{";
 	foreach ($rule['properties'] as $property) {
+		// bail on any x-background-sprite custom properties
+		if ($property['key'] == 'x-background-sprite') {
+			continue;
+		}
+
 		echo $property['key'] . ":" . $property['value'] . ";";
 	}
 	echo "}\n";
