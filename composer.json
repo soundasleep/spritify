@@ -1,0 +1,14 @@
+{
+  "name": "soundasleep/spritify",
+  "type": "library",
+  "version": "0.1.0",
+  "keywords": ["css", "png", "spritesheet", "sprites", "build"],
+  "homepage": "https://github.com/soundasleep/spritify",
+  "license": "GPL-3.0",
+  "require": {
+    "php": ">=5.2.3"
+  },
+  "autoload": {
+    "classmap": ["./"]
+  }
+}
