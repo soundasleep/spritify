@@ -121,11 +121,6 @@ function print_help($stream) {
 // generate a random parameter to add to the output_png to ensure that the browser requests the most recent version
 $rand_param = "?" . sprintf("%04x", rand(0,0xffff));
 
-$max_sprite_width = isset($argv[3]) ? isset($argv[3]) : 32;
-$max_sprite_height = isset($argv[4]) ? isset($argv[4]) : 32;
-
-$sprite_padding = isset($argv[5]) ? isset($argv[5]) : 200;
-
 class SpritifyException extends Exception { }
 
 // calculate $relative - the relative path that this script needs to add to access CSS, images etc
