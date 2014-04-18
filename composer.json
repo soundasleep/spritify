@@ -1,5 +1,6 @@
 {
   "name": "soundasleep/spritify",
+  "description": "A CSS processor to generate spritesheets",
   "type": "library",
   "version": "0.1.0",
   "keywords": ["css", "png", "spritesheet", "sprites", "build"],
