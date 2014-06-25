@@ -29,6 +29,7 @@
  * - Only supports spriting of PNG images, does not support GIF.
  * - The output CSS file needs to be in the same directory as the input CSS file.
  * - All images need to be relative and accessible relative to the CSS file (no Apache Aliases, etc).
+ * - Does not support @media queries yet.
  * - Assumes background images are of one of the following formats:
  *   - background: #123 url('foo'); (colours are added as another property 'background-color')
  *   - background: url('foo');
@@ -282,7 +283,7 @@ if ($sprited_elements) {
 
 // generate the sprites image
 // based on code from http://www.php.net/manual/en/function.imagesavealpha.php
-{
+if (count($sprites)) {
 	$img = imagecreatetruecolor($max_sprite_width, count($sprites) * ($max_sprite_height + $sprite_padding));
 
 	// enable alpha blending on the destination image.
