@@ -16,6 +16,7 @@ PHP, GD library (`apt-get install php5-gd`)
 * Removes CSS comments
 * Removes most unnecessary whitespace
 * Generates spritesheets from PNG images less than a given size (default 32x32)
+* Supports @media queries
 * Supports full alpha PNG images
 * Disable spritify [http://code.google.com/p/spritify/source/detail?r=7 for individual rules] by using `x-background-sprite: false;`
 
@@ -37,6 +38,7 @@ For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [th
 * Only supports spriting of PNG images, does not support GIF.
 * The output CSS file needs to be in the same directory as the input CSS file.
 * All images need to be relative and accessible relative to the CSS file (no Apache Aliases, etc).
+* Sprited images within @media queries are not tested yet.
 * Assumes background images are of one of the following formats:
 	* `background: #123 url('foo');` (colours are added as another property 'background-color')
 	* `background: url('foo');`
@@ -49,6 +51,10 @@ For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [th
 	* `background: #123 url('foo') center center;` (something aligned 'center center' is ignored)
 	* `background: url('foo') 0% 0%;`
 	* `background: url('foo') 50% 100%;`
+
+## Tests
+
+Very basic tests can be run by executing `tests.php`. The source code for these tests are available in [tests/](tests/).
 
 ## See Also
 
