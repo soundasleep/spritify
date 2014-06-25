@@ -29,7 +29,7 @@
  * - Only supports spriting of PNG images, does not support GIF.
  * - The output CSS file needs to be in the same directory as the input CSS file.
  * - All images need to be relative and accessible relative to the CSS file (no Apache Aliases, etc).
- * - Does not support @media queries yet.
+ * - Supports @media queries, but sprited images within @media queries are not tested yet.
  * - Assumes background images are of one of the following formats:
  *   - background: #123 url('foo'); (colours are added as another property 'background-color')
  *   - background: url('foo');
@@ -43,6 +43,8 @@
  *   - background: url('foo') 0% 0%;
  *   - background: url('foo') 50% 100%;
  */
+
+require_once(__DIR__ . "/functions.php");
 
 // defaults
 $input = false;
@@ -113,16 +115,8 @@ if (!$input || !$output_sprites) {
 	return 1;
 }
 
-function print_help($stream) {
-	fprintf($stream, "Spritify: A tool to process CSS stylesheets, optimise them and generate spritesheets.\n");
-	fprintf($stream, "  Usage: php -f spritify.php [input_css] [output_png] ([--max-width 32] [--max-height 32] [--padding 200] [--output filename.css])");
-	fprintf($stream, "  Output: Compressed CSS stylesheet");
-}
-
 // generate a random parameter to add to the output_png to ensure that the browser requests the most recent version
 $rand_param = "?" . sprintf("%04x", rand(0,0xffff));
-
-class SpritifyException extends Exception { }
 
 // calculate $relative - the relative path that this script needs to add to access CSS, images etc
 $relative = "";
@@ -139,54 +133,132 @@ $input_file = file_get_contents($input);
 // drop all comments
 $input_file = preg_replace("#/\\*.+?\\*/#", "", $input_file);
 
-// check that it is valid according to some basic preg rules
-if (preg_match("#([a-z0-9\-_]+)\\s*:\\s*([^;]+)\\s*}#im", $input_file, $match)) {
-	throw new SpritifyException("Input file '$input' is not valid CSS: missing ; at end of property list: '" . trim($match[0]) . "'");
+// split out media queries
+$queries = array();
+
+$buffer = "";
+$current_query = "";
+// find next @media
+while (($next = strpos($input_file, "@media")) !== false) {
+	// we were in a none @media
+	$queries[] = array(
+		'query' => false,
+		'content' => substr($input_file, 0, $next),
+	);
+
+	// save the current statement
+	$input_file = substr($input_file, $next);
+	if (strpos($input_file, "{") === false) {
+		throw new SpritifyException("Could not find an opening brace for @media query: " . substr($input_file, 0, 64));
+	}
+	$query = substr($input_file, 0, strpos($input_file, "{"));
+	$input_file = substr($input_file, strpos($input_file, "{") + 1 /* skip the first brace */);
+	$brace_count = 1;
+
+	// iterate over content until we find the closing {
+	for ($i = 0; $i < strlen($input_file); $i++) {
+		if (substr($input_file, $i, 1) == "{") {
+			$brace_count++;
+		}
+		if (substr($input_file, $i, 1) == "}") {
+			$brace_count--;
+			if ($brace_count == 0) {
+				break;
+			}
+		}
+	}
+
+	// save this query
+	$queries[] = array(
+		'query' => $query,
+		'content' => substr($input_file, 0, $i),
+	);
+
+	// and continue
+	$input_file = substr($input_file, $i + 1 /* skip the last brace */);
 }
 
-$matches = false;
-if (!preg_match_all("#([^{]+?)\\s*{([^}]+)}#im", $input_file, $matches, PREG_SET_ORDER)) {
-	throw new SpritifyException("Could not find any valid rules in '$input'");
-}
+// save the last one
+$queries[] = array(
+	'query' => false,
+	'content' => $input_file,
+);
 
 // stores the CSS file as parsed
 // as an array of (head => head, properties => (key => key, value => value))
+// or as a (media => media query) or as (media_end => true)
 // (there may be duplicate rules that will overwrite each other,
 // at some point we could optimise overwriting properties if we can understand CSS)
 $css = array();
 
-foreach ($matches as $rule) {
-	$head = $rule[1];
-	$body = $rule[2];
+foreach ($queries as $query) {
+	$input_file = $query['content'];
 
-	// reduce whitespace in head
-	$head = preg_replace("#[\r\n\t]+#im", " ", $head);
-	$head = str_replace(", ", ",", $head);
-	$head = preg_replace("#[\\s]+#im", " ", $head);
-	$head = trim($head);
-
-	// get all of the properties of this rule
-	// NOTE will fail for things like 'content: ';';'
-	$property_matches = false;
-	if (!preg_match_all("#([a-z0-9\-_]+)\\s*:\\s*([^;]+);#im", $body, $property_matches, PREG_SET_ORDER)) {
-		throw new SpritifyException("Rule '$head' had no valid properties");
+	// skip empty content
+	if (!trim($input_file)) {
+		continue;
 	}
 
-	$result = array(
-		"head" => $head,
-		"properties" => array(),
-	);
-
-	foreach ($property_matches as $property) {
-		$result['properties'][] = array("key" => $property[1], "value" => $property[2]);
+	if ($query['query']) {
+		$css[] = array(
+			'media' => $query['query'],
+		);
 	}
-	$css[] = $result;
+
+	// check that it is valid according to some basic preg rules
+	if (preg_match("#([a-z0-9\-_]+)\\s*:\\s*([^;]+)\\s*}#im", $input_file, $match)) {
+		throw new SpritifyException("Input file '$input' is not valid CSS: missing ; at end of property list: '" . trim($match[0]) . "'");
+	}
+
+	$matches = false;
+	if (!preg_match_all("#([^{]+?)\\s*{([^}]+)}#im", $input_file, $matches, PREG_SET_ORDER)) {
+		throw new SpritifyException("Could not find any valid rules in '$input': '" . substr($input_file, 0, 64) . "'");
+	}
+
+	foreach ($matches as $rule) {
+		$head = $rule[1];
+		$body = $rule[2];
+
+		// reduce whitespace in head
+		$head = preg_replace("#[\r\n\t]+#im", " ", $head);
+		$head = str_replace(", ", ",", $head);
+		$head = preg_replace("#[\\s]+#im", " ", $head);
+		$head = trim($head);
+
+		// get all of the properties of this rule
+		// NOTE will fail for things like 'content: ';';'
+		$property_matches = false;
+		if (!preg_match_all("#([a-z0-9\-_]+)\\s*:\\s*([^;]+);#im", $body, $property_matches, PREG_SET_ORDER)) {
+			throw new SpritifyException("Rule '$head' had no valid properties");
+		}
+
+		$result = array(
+			"head" => $head,
+			"properties" => array(),
+		);
+
+		foreach ($property_matches as $property) {
+			$result['properties'][] = array("key" => $property[1], "value" => $property[2]);
+		}
+		$css[] = $result;
+	}
+
+	if ($query['query']) {
+		$css[] = array(
+			'media_end' => $query['query'],
+		);
+	}
+
 }
 
 // process the CSS to find out which sprites we need to create
 $sprites = array();
 $sprited_elements = array();
 foreach ($css as $rule_index => $rule) {
+	if (isset($rule['media']) || isset($rule['media_end'])) {
+		continue;
+	}
+
 	$head = $rule['head'];
 	foreach ($rule['properties'] as $property_index => $property) {
 		if ($property['key'] == 'background') {
@@ -281,6 +353,7 @@ if ($sprited_elements) {
 	));
 }
 
+
 // generate the sprites image
 // based on code from http://www.php.net/manual/en/function.imagesavealpha.php
 if (count($sprites)) {
@@ -319,6 +392,14 @@ if ($output_file) {
 
 fprintf($output_stream, "%s", "/* Generated by Spritify */\n");
 foreach ($css as $rule) {
+	if (isset($rule['media'])) {
+		fprintf($output_stream, "%s", $rule['media'] . "{\n");
+		continue;
+	}
+	if (isset($rule['media_end'])) {
+		fprintf($output_stream, "}\n");
+		continue;
+	}
 	fprintf($output_stream, "%s", $rule['head'] . "{");
 	foreach ($rule['properties'] as $property) {
 		// bail on any x-background-sprite custom properties

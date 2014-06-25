@@ -6,6 +6,7 @@
 
 $tests = array(
 	"single-rule",
+	"media-query",
 );
 
 foreach ($tests as $test) {
@@ -23,7 +24,6 @@ foreach ($tests as $test) {
 	}
 	if (file_exists($output_file)) {
 		unlink($output_file);
-		echo "Deleted $output_file\n...";
 	}
 
 	// set $argv as necessary
@@ -46,7 +46,7 @@ foreach ($tests as $test) {
 	$expected = trim(file_get_contents($expected_file));
 
 	if ($output != $expected) {
-		exec("diff $expected $output");
+		passthru("diff $expected_file $output_file");
 		throw new Exception("Test results did not match");
 	}
 }
