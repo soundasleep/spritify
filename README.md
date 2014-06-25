@@ -18,7 +18,7 @@ PHP, GD library (`apt-get install php5-gd`)
 * Generates spritesheets from PNG images less than a given size (default 32x32)
 * Supports @media queries
 * Supports full alpha PNG images
-* Disable spritify [http://code.google.com/p/spritify/source/detail?r=7 for individual rules] by using `x-background-sprite: false;`
+* Disable spritify [for individual rules](http://code.google.com/p/spritify/source/detail?r=7) by using `x-background-sprite: false;`
 
 ## Usage
 
