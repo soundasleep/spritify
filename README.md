@@ -19,7 +19,7 @@ PHP, GD library (`apt-get install php5-gd`)
 * Supports @media queries
 * Supports full alpha PNG images
 * Supports high resolution sprite scaling through `background-size`
-* Disable spritify [http://code.google.com/p/spritify/source/detail?r=7 for individual rules] by using `x-background-sprite: false;`
+* Disable spritify [for individual rules](http://code.google.com/p/spritify/source/detail?r=7) by using `x-background-sprite: false;`
 
 ## Usage
 
@@ -30,7 +30,7 @@ svn co http://spritify.googlecode.com/svn/trunk/ spritify
 php -f spritify/spritify.php default.css img/all_sprites.png > default-compiled.css
 ```
 
-For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [this stylesheet](http://cryptfolio.com/default.css) into a [compressed stylesheet](http://cryptfolio.com/default-sprites.css) with a [PNG spritesheet](http://cryptfolio.com/img/all_sprites.png).
+For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [this stylesheet](https://github.com/soundasleep/openclerk/blob/master/site/css/default.scss) into a [compressed stylesheet](http://cryptfolio.com/styles/default.css) with a [PNG spritesheet](http://cryptfolio.com/img/default-sprites.png).
 
 ## Limitations
 
