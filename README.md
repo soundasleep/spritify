@@ -18,6 +18,7 @@ PHP, GD library (`apt-get install php5-gd`)
 * Generates spritesheets from PNG images less than a given size (default 32x32)
 * Supports @media queries
 * Supports full alpha PNG images
+* Supports high resolution sprite scaling through `background-size`
 * Disable spritify [http://code.google.com/p/spritify/source/detail?r=7 for individual rules] by using `x-background-sprite: false;`
 
 ## Usage
@@ -46,11 +47,14 @@ For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [th
 	* `background: url('foo') 0 0;`
 	* `background: url('foo') 10px 20px;`
 	* `background: url('foo') top 10px;`
+  * `background-size: 16px 16px;`
 * The following are not supported:
 	* `background: #123 url('foo') bottom right;` (all other words are assumed to be 'top left')
 	* `background: #123 url('foo') center center;` (something aligned 'center center' is ignored)
 	* `background: url('foo') 0% 0%;`
 	* `background: url('foo') 50% 100%;`
+  * `background-size: 100%;`
+  * `background-size: contain;`
 
 ## Tests
 

@@ -1,0 +1,34 @@
+.btc, .ltc, .btc-big, .ltc-big, .btc2 {
+  display: inline-block;
+  padding-left: 20px;
+  min-height: 16px;
+  min-width: 16px;
+}
+.btc {
+  background: red url('images/bitcoin.png') top left no-repeat;
+  background-size: 16px 16px;
+}
+.btc2 {
+  background: red url('images/bitcoin.png') 2px 2px no-repeat;
+  background-size: 16px 16px;
+}
+.ltc {
+  background: url('images/litecoin.png') top left no-repeat;
+  background-size: 16px 16px;
+}
+.btc-big {
+  background: url('images/btc.png') top left no-repeat;
+  background-size: 16px 16px;
+}
+.ltc-big {
+  background: url('images/ltc.png') top left no-repeat;
+  background-size: 16px 16px;
+}
+.triangle {
+  display: inline-block;
+  padding-left: 10px;
+  min-height: 16px;
+  min-width: 16px;
+  background: url('images/triangle.png') top left no-repeat;
+  background-size: 8px 16px;
+}

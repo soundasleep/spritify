@@ -7,6 +7,7 @@
 $tests = array(
 	"single-rule",
 	"media-query",
+	"sizes",
 );
 
 foreach ($tests as $test) {
@@ -33,6 +34,9 @@ foreach ($tests as $test) {
 		$input_file,
 		"--output",
 		$output_file,
+		"--png",
+		"sprites-$test.png",
+		"--no-rand-param",
 	);
 	$argc = count($argv);
 

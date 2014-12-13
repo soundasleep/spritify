@@ -53,6 +53,8 @@ $output_file = false;				// if false, then use stdout
 
 $max_sprite_width = 32;
 $max_sprite_height = 32;
+$debug = false;
+$include_rand_param = true;
 
 // amount of space to place between sprites; this can be a big number, doesn't seem to impact PNG filesize
 $sprite_padding = 200;
@@ -72,38 +74,51 @@ for ($i = 1; $i < $argc; $i++) {
 
 	if (substr($argv[$i], 0, 2) == "--") {
 		$switch = substr($argv[$i], 2);
+		if ($i < $argc) {
+			switch ($switch) {
+				case "debug":
+					$debug = true;
+					continue 2;
+					break;
+
+				case "no-rand-param":
+					$include_rand_param = false;
+					continue 2;
+			}
+		}
+
 		if (($i + 1) < $argc) {
 			$value = $argv[$i + 1];
+			$i++;	// skip next argument
 			switch ($switch) {
 				case "input":
 					$input = $value;
-					break;
+					continue 2;
 
 				case "png":
 					$output_sprites = $value;
-					break;
+					continue 2;
 
 				case "output":
 					$output_file = $value;
-					break;
+					continue 2;
 
 				case "max-width":
 					$max_sprite_width = $value;
-					break;
+					continue 2;
 
 				case "max-height":
 					$max_sprite_height = $value;
-					break;
+					continue 2;
 
 				case "padding":
 					$sprite_padding = $value;
-					break;
+					continue 2;
 			}
-			$i++;	// skip next argument
-		} else {
-			error_log("No switch argument for '$switch' defined");
-			exit(1);
 		}
+
+		error_log("No switch argument for '$switch' defined");
+		exit(1);
 	} else {
 		// must be a SVN url
 		$svn_urls[] = $argv[$i];
@@ -254,6 +269,7 @@ foreach ($queries as $query) {
 // process the CSS to find out which sprites we need to create
 $sprites = array();
 $sprited_elements = array();
+$background_sized_elements = array();
 foreach ($css as $rule_index => $rule) {
 	if (isset($rule['media']) || isset($rule['media_end'])) {
 		continue;
@@ -320,7 +336,15 @@ foreach ($css as $rule_index => $rule) {
 
 						// replace the rule
 						$css[$rule_index]['properties'][$property_index]['key'] = 'background-position';
-						$css[$rule_index]['properties'][$property_index]['value'] = sprintf("%d", $sprite_left) . ($sprite_left ? "px" : "") . " " . sprintf("%d", $sprite_top) . ($sprite_top ? "px" : "");
+						$css[$rule_index]['properties'][$property_index]['value'] = sprintf("%d", $sprite_left) . "px " . sprintf("%d", $sprite_top) . "px";
+
+						// does it have a background size?
+						$background_size = false;
+						foreach ($rule['properties'] as $property2) {
+							if ($property2['key'] == 'background-size') {
+								$background_sized_elements[] = array('rule_index' => $rule_index, 'sizes' => $sizes);
+							}
+						}
 
 						// was there a background color in this rule as well? if so, add it
 						if (preg_match("#^(\\#?[a-z0-9]+)\s+url#im", $property['value'], $match)) {
@@ -332,27 +356,77 @@ foreach ($css as $rule_index => $rule) {
 					}
 				}
 			}
-			if (preg_match("##im", $property['value'])) {
-				// insert a new 'background-color' property after this one
+		}
+	}
+}
+
+// replace all background-sizes
+foreach ($background_sized_elements as $x) {
+	$rule_index = $x['rule_index'];
+	$sizes = $x['sizes'];
+	$head = $css[$rule_index]['head'];
+
+	$background_size = false;
+	$property_index = -1;
+	foreach ($css[$rule_index]['properties'] as $i => $property2) {
+		if ($property2['key'] == 'background-size') {
+			$property_index = $i;
+			$background_size = $property2['value'];
+		}
+	}
+
+	if ($background_size) {
+		// now work out what this 'background' property will be replaced with
+		$desired_width = -1;
+		$desired_height = -1;
+		if (preg_match("#([0-9]+)px ([0-9]+)px#im", $background_size, $match)) {
+			$desired_width = $match[1];
+			$desired_height = $match[2];
+		} else {
+			throw new SpritifyException("Rule '$head': Only background-size supported syntax is Xpx Ypx: '$background_size'");
+		}
+
+		// work out scale
+		$total_size = count($sprites) * ($max_sprite_height + $sprite_padding);
+		$scale_width = $desired_width / $sizes[0];
+		$scale_height = $desired_height / $sizes[1];
+		$sprite_size = $max_sprite_width . "px " . $total_size . "px";
+
+		// debug
+		if ($debug) {
+			$css[$rule_index]['properties'][] = array('key' => 'x-desired-size', 'value' => $background_size);
+			$css[$rule_index]['properties'][] = array('key' => 'x-total-count', 'value' => count($sprites));
+			$css[$rule_index]['properties'][] = array('key' => 'x-actual-size', 'value' => $sizes[0] . " " . $sizes[1]);
+			$css[$rule_index]['properties'][] = array('key' => 'x-total-size', 'value' => count($sprites) * ($max_sprite_height + $sprite_padding));
+			$css[$rule_index]['properties'][] = array('key' => 'x-scale', 'value' => "$scale_width $scale_height");
+			$css[$rule_index]['properties'][] = array('key' => 'x-sprite-size', 'value' => $sprite_size);
+		}
+
+		// scale both background-size and background-scale appropriately
+		foreach ($css[$rule_index]['properties'] as $i => $property2) {
+			if ($property2['key'] == 'background-size') {
+				$css[$rule_index]['properties'][$i]['value'] = scale_size($sprite_size, $scale_width, $scale_height);
+			}
+			if ($property2['key'] == 'background-position') {
+				$css[$rule_index]['properties'][$i]['value'] = scale_size($property2['value'], $scale_width, $scale_height);
 			}
 		}
 	}
 }
 
 // add a new CSS rule for all sprited elements
-// TODO does this need to be placed at the top of the spreadsheet?
+// TODO does this always need to be placed at the top of the spreadsheet?
 if ($sprited_elements) {
 	array_unshift($css, array(
 		'head' => implode(',', $sprited_elements),
 		'properties' => array(
 			array(
 				'key' => 'background',
-				'value' => "url('" . $output_sprites . $rand_param . "') top left no-repeat",
+				'value' => "url('" . $output_sprites . ($include_rand_param ? $rand_param : "") . "') top left no-repeat",
 			),
 		),
 	));
 }
-
 
 // generate the sprites image
 // based on code from http://www.php.net/manual/en/function.imagesavealpha.php
