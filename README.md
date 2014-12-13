@@ -32,13 +32,13 @@ and run `composer update` to install it into your project:
 }
 ```
 
-You can then use spritify as part of your build script:
+You can then use _spritify_ as part of your build script:
 
 ```
 php -f vendor/soundasleep/spritify/spritify.php --input default.css --png img/all_sprites.png --output default-compiled.css
 ```
 
-(A Grunt NPM helper task will be published later.)
+You can also use the new [grunt-contrib-spritify task](https://github.com/soundasleep/grunt-contrib-spritify) in your Gruntfile.
 
 For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [this stylesheet](https://github.com/soundasleep/openclerk/blob/master/site/css/default.scss) into a [compressed stylesheet](http://cryptfolio.com/styles/default.css) with a [PNG spritesheet](http://cryptfolio.com/img/default-sprites.png).
 
