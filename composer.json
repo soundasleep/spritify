@@ -2,7 +2,6 @@
   "name": "soundasleep/spritify",
   "description": "A CSS processor to generate spritesheets",
   "type": "library",
-  "version": "0.3.0",
   "keywords": ["css", "png", "spritesheet", "sprites", "build"],
   "homepage": "https://github.com/soundasleep/spritify",
   "license": "GPL-3.0",
