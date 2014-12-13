@@ -60,5 +60,5 @@ Very basic tests can be run by executing `tests.php`. The source code for these 
 
 ## See Also
 
-* [CSSTidy http://csstidy.sourceforge.net/]
-* [OptiPNG http://optipng.sourceforge.net/]
+* [CSSTidy](http://csstidy.sourceforge.net/)
+* [OptiPNG](http://optipng.sourceforge.net/)
