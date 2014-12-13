@@ -3,8 +3,6 @@ spritify
 
 A simple PHP script that can be used to process a CSS stylesheet, perform some basic optimisation, and generate a spritesheet of all sprites used in that stylesheet.
 
-This Git repository has been cloned from the original SVN repository: http://code.google.com/p/spritify/
-
 *NOTE* This project is very experimental - feel free to [report any issues or bugs](http://code.google.com/p/spritify/issues/list).
 
 ## Requirements
@@ -62,5 +60,5 @@ Very basic tests can be run by executing `tests.php`. The source code for these 
 
 ## See Also
 
-* [http://csstidy.sourceforge.net/ CSSTidy]
-* [http://optipng.sourceforge.net/ OptiPNG]
+* [CSSTidy http://csstidy.sourceforge.net/]
+* [OptiPNG http://optipng.sourceforge.net/]
