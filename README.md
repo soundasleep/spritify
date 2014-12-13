@@ -19,14 +19,26 @@ PHP, GD library (`apt-get install php5-gd`)
 * Supports high resolution sprite scaling through `background-size`
 * Disable spritify [for individual rules](http://code.google.com/p/spritify/source/detail?r=7) by using `x-background-sprite: false;`
 
-## Usage
+## Installing
 
-You can use this in part of your build script:
+Include [spritify](https://packagist.org/packages/soundasleep/spritify) as a requirement in your project `composer.json`,
+and run `composer update` to install it into your project:
+
+```json
+{
+  "require": {
+    "soundasleep/spritify": "dev-master"
+  }
+}
+```
+
+You can then use spritify as part of your build script:
 
 ```
-svn co http://spritify.googlecode.com/svn/trunk/ spritify
-php -f spritify/spritify.php default.css img/all_sprites.png > default-compiled.css
+php -f vendor/soundasleep/spritify/spritify.php --input default.css --png img/all_sprites.png --output default-compiled.css
 ```
+
+(A Grunt NPM helper task will be published later.)
 
 For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [this stylesheet](https://github.com/soundasleep/openclerk/blob/master/site/css/default.scss) into a [compressed stylesheet](http://cryptfolio.com/styles/default.css) with a [PNG spritesheet](http://cryptfolio.com/img/default-sprites.png).
 
