@@ -355,7 +355,7 @@ foreach ($css as $rule_index => $rule) {
 						// replace the rule
 						$css[$rule_index]['properties'][$property_index] = array(
 							'key' => 'background-position',
-							'value' => sprintf("%d", $sprite_left) . "px " . sprintf("%d", $sprite_top) . "px",
+							'value' => print_dimensions($sprite_left, $sprite_top),
 						);
 
 						// does it have a background size?
@@ -410,7 +410,7 @@ foreach ($background_sized_elements as $x) {
 		$total_size = count($sprites) * ($max_sprite_height + $sprite_padding);
 		$scale_width = $desired_width / $sizes[0];
 		$scale_height = $desired_height / $sizes[1];
-		$sprite_size = $max_sprite_width . "px " . $total_size . "px";
+		$sprite_size = print_dimensions($max_sprite_width, $total_size);
 
 		// debug
 		if ($debug) {
