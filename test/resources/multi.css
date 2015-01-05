@@ -1,0 +1,10 @@
+/**
+ * Tests issue #2.
+ */
+
+.bitcoin {
+  background-image: url('images/btc.png');
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+}

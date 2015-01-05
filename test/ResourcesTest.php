@@ -24,6 +24,13 @@ class ResourcesTest extends PHPUnit_Framework_TestCase {
 		$this->doTest("block-comment");
 	}
 
+	/**
+	 * Tests issue #2
+	 */
+	function testMulti() {
+		$this->doTest("multi");
+	}
+
 	function doTest($test) {
 
 		$input_file = __DIR__ . "/resources/$test.css";

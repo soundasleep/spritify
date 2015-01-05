@@ -277,10 +277,15 @@ foreach ($css as $rule_index => $rule) {
 
 	$head = $rule['head'];
 	foreach ($rule['properties'] as $property_index => $property) {
-		if ($property['key'] == 'background') {
+		$is_good_background_image =
+				$property['key'] == 'background-image' &&
+				rule_has_property($rule, "background-repeat", "no-repeat");
+
+		if ($property['key'] == 'background' || $is_good_background_image) {
 			// get the URL of the image
 			if (preg_match("#url\\(['\"]([^'\"]+)['\"]\\)#im", $property['value'], $match)) {
 				$image_url = $match[1];
+				$original_value = $property['value'];
 				// we only support PNG (this also means we don't need to support animated GIFs etc)
 				if (substr(strtolower($image_url), -4) == ".png") {
 
@@ -321,7 +326,7 @@ foreach ($css as $rule_index => $rule) {
 						$sprite_left = 0;
 
 						// now work out what this 'background' property will be replaced with
-						if (preg_match("#\\)\\s*([0-9]+|top|bottom|center|left|right)(|px)\\s*([0-9]+|top|bottom|left|right|center)(|px)#im", strtolower($property['value']), $match)) {
+						if (preg_match("#\\)\\s*([0-9]+|top|bottom|center|left|right)(|px)\\s*([0-9]+|top|bottom|left|right|center)(|px)#im", strtolower($original_value), $match)) {
 							if (in_array($match[1], array('bottom', 'center', 'right'))) {
 								fwrite(STDERR, "Warning: Rule '$head' used unsupported background position constant '" . $match[1] . "': assuming 'top'.\n");
 							}
@@ -331,12 +336,27 @@ foreach ($css as $rule_index => $rule) {
 							$sprite_left += $match[1];
 							$sprite_top += $match[3];
 						} else {
+							// is there another rule that defines position?
 							// it has no positioning
 						}
 
+						// remove any is_good_background_image rules
+						if ($is_good_background_image) {
+							foreach ($css[$rule_index]['properties'] as $index => $property) {
+								if ($property['key'] == "background-repeat" && $property['value'] == "no-repeat") {
+									unset($css[$rule_index]['properties'][$index]);
+								}
+								if ($property['key'] == "background-image" || $property['key'] == "background-position") {
+									unset($css[$rule_index]['properties'][$index]);
+								}
+							}
+						}
+
 						// replace the rule
-						$css[$rule_index]['properties'][$property_index]['key'] = 'background-position';
-						$css[$rule_index]['properties'][$property_index]['value'] = sprintf("%d", $sprite_left) . "px " . sprintf("%d", $sprite_top) . "px";
+						$css[$rule_index]['properties'][$property_index] = array(
+							'key' => 'background-position',
+							'value' => sprintf("%d", $sprite_left) . "px " . sprintf("%d", $sprite_top) . "px",
+						);
 
 						// does it have a background size?
 						$background_size = false;
@@ -347,7 +367,7 @@ foreach ($css as $rule_index => $rule) {
 						}
 
 						// was there a background color in this rule as well? if so, add it
-						if (preg_match("#^(\\#?[a-z0-9]+)\s+url#im", $property['value'], $match)) {
+						if (preg_match("#^(\\#?[a-z0-9]+)\s+url#im", $original_value, $match)) {
 							$css[$rule_index]['properties'][] = array(
 								'key' => 'background-color',
 								'value' => $match[1],
