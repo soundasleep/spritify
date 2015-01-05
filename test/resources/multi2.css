@@ -1,0 +1,28 @@
+/**
+ * Tests issue #2 with some more complex situations.
+ */
+
+.btc {
+  background-image: url('images/btc.png');
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+}
+
+.bitcoin {
+  background-image: url('images/bitcoin.png');
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+}
+
+.ltc {
+  background-image: url('images/ltc.png');
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+}
+
+.repeating {
+  background-image: url('images/litecoin.png');
+  background-size: 16px 16px;
+}

@@ -1,3 +1,3 @@
 vendor/
-tests/resources/*.output.css
-tests/resources/sprites-*.png
+test/resources/*.output.css
+test/resources/sprites-*.png

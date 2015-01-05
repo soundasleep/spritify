@@ -31,6 +31,13 @@ class ResourcesTest extends PHPUnit_Framework_TestCase {
 		$this->doTest("multi");
 	}
 
+	/**
+	 * Tests issue #2
+	 */
+	function testMulti2() {
+		$this->doTest("multi2");
+	}
+
 	function doTest($test) {
 
 		$input_file = __DIR__ . "/resources/$test.css";
