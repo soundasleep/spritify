@@ -63,12 +63,18 @@ For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [th
 	* `background: #123 url('foo') center center;` (something aligned 'center center' is ignored)
 	* `background: url('foo') 0% 0%;`
 	* `background: url('foo') 50% 100%;`
+  * `background-image: url('foo');` (only supports `background`)
   * `background-size: 100%;`
   * `background-size: contain;`
 
 ## Tests
 
-Very basic tests can be run by executing `tests.php`. The source code for these tests are available in [tests/](tests/).
+Very basic tests are provided with phpunit. The source code for these tests are available in [tests/](tests/).
+
+```
+composer install
+vendor/bin/phpunit
+```
 
 ## See Also
 

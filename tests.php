@@ -9,6 +9,7 @@ $tests = array(
 	"media-query",
 	"sizes",
 	"block-comment",
+	"multi",
 );
 
 foreach ($tests as $test) {
