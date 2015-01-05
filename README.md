@@ -63,7 +63,6 @@ For example, [CryptFolio](https://cryptfolio.com) uses Spritify to transform [th
 	* `background: #123 url('foo') center center;` (something aligned 'center center' is ignored)
 	* `background: url('foo') 0% 0%;`
 	* `background: url('foo') 50% 100%;`
-  * `background-image: url('foo');` (only supports `background`)
   * `background-size: 100%;`
   * `background-size: contain;`
 
