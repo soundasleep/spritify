@@ -146,7 +146,7 @@ if (!file_exists($input)) {
 $input_file = file_get_contents($input);
 
 // drop all comments
-$input_file = preg_replace("#/\\*.+?\\*/#", "", $input_file);
+$input_file = preg_replace("#/\\*.+?\\*/#ims", "", $input_file);
 
 // split out media queries
 $queries = array();

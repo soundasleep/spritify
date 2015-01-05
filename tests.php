@@ -8,6 +8,7 @@ $tests = array(
 	"single-rule",
 	"media-query",
 	"sizes",
+	"block-comment",
 );
 
 foreach ($tests as $test) {
