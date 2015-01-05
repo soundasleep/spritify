@@ -3,7 +3,7 @@
 /**
  * Tests all of the tests from test/resources
  */
-class ResourcesTest extends PHPUnit_Framework_TestCase {
+class ResourcesTest extends \PHPUnit_Framework_TestCase {
 
 	function testSingleRule() {
 		$this->doTest("single-rule");
