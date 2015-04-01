@@ -1,4 +1,4 @@
-spritify
+spritify [![Build Status](https://travis-ci.org/soundasleep/spritify.svg?branch=master)](https://travis-ci.org/soundasleep/spritify)
 ========
 
 A simple PHP script that can be used to process a CSS stylesheet, perform some basic optimisation, and generate a spritesheet of all sprites used in that stylesheet.
